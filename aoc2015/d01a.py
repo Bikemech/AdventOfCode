@@ -1,0 +1,1 @@
+print(-sum([2 * ord(i) - 81 for i in open("d01", "r").read()]))
