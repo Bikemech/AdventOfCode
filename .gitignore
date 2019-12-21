@@ -26,4 +26,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Made up extension for puzzle inputs.
+*.puz
+
 # End of https://www.gitignore.io/api/windows
