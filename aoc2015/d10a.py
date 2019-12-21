@@ -20,7 +20,12 @@ def look_say(x):
 
 data = "1113122113"
 
-for i in range(50):
+for i in range(40):
+	data = look_say(data)
+
+print(len(data))
+
+for i in range(10):
 	data = look_say(data)
 
 print(len(data))

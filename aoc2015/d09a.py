@@ -1,5 +1,3 @@
-"""   BROKEN    """
-
 class node:
 	def __init__(self, name):
 		self.name = name
@@ -37,6 +35,23 @@ class node:
 					i.unvisisted = False
 
 
+def search(nodes, start):
+	Que = [nodes[i] for i in nodes]
+	for q in Que:
+		q.restore()
+	start.weight = 0
+
+	while Que:
+		Que = sorted(Que)
+		ptr = Que.pop(0)
+		for n in Que:
+			n.weight = 2**32
+
+		ptr.relax()
+
+	return ptr.weight
+
+
 nodes = dict()
 
 for i in open("d09", "r").readlines():
@@ -50,23 +65,4 @@ for i in open("d09", "r").readlines():
 	nodes[town[0]].connect(nodes[town[2]], int(town[-1]))
 
 
-times = []
-
-for name in nodes:
-
-	nodes[name].weight = 0
-	Que = []
-	for i in nodes:
-		Que.append(nodes[i])
-	while Que:
-		Que = sorted(Que)
-		for i in Que[1:]:
-			i.weight = 2**32
-
-		ptr = Que.pop(0)
-		ptr.relax()
-
-		for i in nodes:
-			nodes[i].drop(nodes[ptr.name])
-
-print(ptr.weight)
+print(min([search(nodes, nodes[i]) for i in nodes]))
