@@ -1,144 +1,80 @@
+'''		BROKEN		'''
+
 import re
-NAME = re.compile(r'.*\s(\w{1,2})$')
-EXPR = re.compile(r'(NOT|AND|OR|RSHIFT|LSHIFT)')
 
-data = {NAME.match(i).group(1):i for i in open("d07", "r").readlines()}
-data = {NAME.match(i).group(1):i for i in open("scrap", "r").readlines()}
+rxtoken = re.compile(r'(NOT|OR|AND|RSHIFT|LSHIFT)')
+rxname = re.compile(r'([a-z0-9]+)')
 
-# find wire 'a' and connect recursively backwards...
+def parse(line):
+	prime = rxname.findall(line)[0]
 
+	if rxtoken.findall(line):
+		token = rxtoken.findall(line)[0]
+	else:
+		token = None
 
-class node:
-	def __init__(self, line):
-		print(line)
-		self.ID = NAME.match(line).group(1)
-		self.a = None
-		self.b = None
-		self.val = None
+	if token is None or token == 'NOT':
+		return (token, prime, None)
 
-		if EXPR.search(line):
-			self.expr = EXPR.search(line).group(1)
-		else:
-			self.expr = None
+	second = rxname.findall(line)[1]
 
-		self.assemble(line)
-
-	def view(self):
-		if self.a:
-			print(self.ID, self.a.ID)
-			self.a.view()
-		else:
-			print(self.ID, self.a)
-
-		if self.b:
-			print(self.ID, self.b.ID)
-			self.b.view()
-		else:
-			print(self.ID, self.b)
+	return (token, prime, second)
 
 
-	def assemble(self, line):
+def NOT(x):
+	return ~x % (1 << 16)
+
+def AND(x, y):
+	return (x & y) % (1 << 16)
+
+def OR(x, y):
+	return (x | y) % (1 << 16)
+
+def LSHIFT(x, y):
+	return (x << y) % (1 << 16)
+
+def RSHIFT(x, y):
+	return (x >> y) % (1 << 16)
 
 
-		if self.expr is None:
-			if line.split()[1].isdigit:
-				a = line.split()[0]
-			else:
-				a = data[line.split()[0]].split()[0]
+def eval(x):
+	print(x)
+	sleep(.2)
 
-			self.a = makeWire(a)
+	token = x[0]
 
+	if x[1].isdigit():
+		primexp = int(x[1])
 
-		elif self.expr == "NOT":
-			if line.split()[1].isdigit():
-				a = line.split()[1]
-			else:
-				a = NAME.match(data[line.split()[1]]).group(1)
-			self.a = makeWire(a)
+	else:
+		primexp = eval(data[x[1]])
 
-		elif self.expr in ("AND", "OR", "RSHIFT", "LSHIFT"):
-			if line.split()[0].isdigit():
-				a = line.split()[0]
-			else:
-				a = NAME.match(data[line.split()[0]]).group(1)
+	if token is None:
+		return primexp
 
-			if line.split()[2].isdigit():
-				b = line.split()[2]
-			else:
-				b = NAME.match(data[line.split()[2]]).group(1)
+	if token == 'NOT':
+		return NOT(primexp)
 
-			self.a = makeWire(a)
-			self.b = makeWire(b)
+	if x[2].isdigit():
+		secondexp = int(x[2])
 
-	def rshift(self, a, b):
-		self.val = (a >> b) % (1 << 16)
-		return self.val
+	else:
+		secondexp = eval(data[x[2]])
 
-	def lshift(self, a, b):
-		self.val = (a << b) % (1 << 16)
-		return self.val
+	if token == "OR":
+		return OR(primexp, secondexp)
 
-	def lnot(self, a):
-		self.val = ~a % (1 << 16)
-		return self.val
+	if token == "AND":
+		return AND(primexp, secondexp)
 
-	def land(self, a, b):
-		self.val = (a & b) % (1 << 16)
-		return self.val
+	if token == "LSHIFT":
+		return LSHIFT(primexp, secondexp)
 
-	def lor(self, a, b):
-		self.val = (a | b) % (1 << 16)
-		return self.val
+	if token == "RSHIFT":
+		return RSHIFT(primexp, secondexp)
 
-	def eval(self):
-		print(self.ID)
-		if self.expr is None:
-			self.val = self.a.eval()
-			return self.val
+data = dict()
+for line in open("d07.puz", "r").readlines():
+	data[line.split()[-1]] = parse(line)
 
-		if self.expr == "NOT":
-			self.val = self.lnot(self.a.eval())
-			return self.val
-
-		if self.expr == "AND":
-			self.val = self.land(self.a.eval(), self.b.eval())
-			return self.val
-
-		if self.expr == "OR":
-			self.val = self.lor(self.a.eval(), self.b.eval())
-			return self.val
-
-		if self.expr == "LSHIFT":
-			self.val = self.lshift(self.a.eval(), self.b.eval())
-			return self.val
-
-		if self.expr == "RSHIFT":
-			self.val = self.rshift(self.a.eval(), self.b.eval())
-			return self.val
-
-
-
-class constant:
-	def __init__(self, val):
-		self.val = val
-		self.ID = str(val)
-		self.a = None
-		self.b = None
-
-	def eval(self):
-		return self.val
-
-	def view(self):
-		return
-
-def makeWire(name):
-	if name.isdigit():
-		return constant(int(name))
-	return node(data[name])
-
-
-root = makeWire('a')
-
-print("tree")
-
-print(root.eval())
+print(eval(data['a']))

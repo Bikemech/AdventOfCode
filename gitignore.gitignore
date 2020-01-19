@@ -25,7 +25,13 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
+# executables
+*.exe
+
 # Windows shortcuts
 *.lnk
+
+# subfolders
+aoc2016/cpp/
 
 # End of https://www.gitignore.io/api/windows

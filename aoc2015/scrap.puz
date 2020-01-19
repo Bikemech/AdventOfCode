@@ -1,0 +1,5 @@
+c AND d -> b
+e OR f - > c
+
+
+b -> a
