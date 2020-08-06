@@ -1,45 +1,32 @@
-from collections import deque
+class KnotHash(list):
+    def __init__(self, it):
+        for i in range(it):
+            self.append(i)
 
-class KnotHash:
-    def __init__(self):
-        self.string = deque([i for i in range(256)])
+        self.index = 0
         self.skip = 0
-        self.total_shift = 0
 
-    def __lshift__(self, other):
-        for i in range(other):
-            self.string.append(self.string.popleft())
+    def __knot__(self, i, j):
+        k = len(self)
 
-        self.total_shift += 1
+        while i < j:
+            self[i % k], self[j % k] = self[j % k], self[i % k]
+            i += 1
+            j -= 1
 
-    def __rshift__(self, other):
-        for i in range(other):
-            self.string.appendleft(self.string.pop())
+    def knot(self, step):
+        i = self.index
+        j = i + step
 
-        self.total_shift -= 1
+        self.__knot__(i, j - 1)
+        self.index += step + self.skip
+        self.skip += 1
 
-    def reverse(self, index):
-        snippet = deque()
-        for i in range(index):
-            snippet.append(self.string.popleft())
 
-        self.string.extendleft(snippet)
+data = [int(i) for i in open("d10.input", "r").read().split(",")]
 
-    def hash_sequence(self, sequence):
-        for i, j in enumerate(sequence):
-            self.reverse(j)
-            self << (j + self.skip)
-            self.skip += 1
+t = KnotHash(256)
+for i in data:
+    t.knot(i)
 
-    def origo(self):
-        self << self.total_shift
-
-data = [int(i) for i in open("d10.input").read().split(",")]
-
-p = KnotHash()
-
-p.hash_sequence(data)
-print(p.string[p.total_shift] *  p.string[p.total_shift + 1])
-p.origo()
-print(p.string[0] * p.string[1])
-print(p.total_shift)
+print(t[0] * t[1])
