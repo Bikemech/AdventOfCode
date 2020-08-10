@@ -27,6 +27,10 @@ class KnotHash(list):
             for j in data:
                 self.knot(j)
 
+    def step_knot(self, data):
+        for j in data:
+            self.knot(j)
+
     def dense_hash(self):
         string = ""
         for i in range(0, 256, 16):

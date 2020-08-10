@@ -1,3 +1,5 @@
+from tkinter import Canvas, Tk
+
 from knothash import KnotHash
 
 class kh(KnotHash):
@@ -27,12 +29,16 @@ for i in range(128):
     puz = puzzle_input + "%d"%i
     data = [ord(i) for i in puz]
 
-    strings.append(kh(data).binary())
+    strings.append(list(kh(data).binary()))
 
-count = 0
-for i in strings:
-    for j in i:
-        if j == "1":
-            count += 1
+root = Tk()
+frame = Canvas(root, height = 600, width = 600, bg = "#000000")
+frame.pack()
 
-print(count)
+for i, p in enumerate(strings):
+    for j, q in enumerate(p):
+        if q == "1":
+            frame.create_rectangle(i * 4, j * 4, i * 4 + 3, j * 4 + 3, fill = "#ff0000", outline = "#ff0000")
+
+
+frame.mainloop()
