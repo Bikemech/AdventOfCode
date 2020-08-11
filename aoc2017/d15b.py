@@ -27,4 +27,5 @@ count = 0
 for _ in range(5 * 10**6):
     count += compare(next(a), next(b))
 
+
 print(count)
