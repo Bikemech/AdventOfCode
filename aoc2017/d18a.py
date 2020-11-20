@@ -7,6 +7,21 @@ def format_data(line):
 def duet(data):
     ptr = 0
 
+
 data = [format_data(string) for string in open("d18.input", "r").readlines()]
 
 registers = dict()
+
+def dec(func):
+    a = 40
+    def inner(args):
+        print(a)
+        a = args
+        return func(args)
+    return inner
+
+@dec
+def test(x):
+    return x
+
+test(9)
